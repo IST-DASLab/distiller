@@ -29,13 +29,14 @@ import torch
 from torch.autograd import Variable
 import torch.optim
 import distiller
+from .data_loggers import PythonLogger, CsvLogger
 msglogger = logging.getLogger()
 
 __all__ = ['model_summary',
            'weights_sparsity_summary', 'weights_sparsity_tbl_summary',
            'model_performance_summary', 'model_performance_tbl_summary']
 
-from .data_loggers import PythonLogger, CsvLogger
+
 def model_summary(model, what, dataset=None):
     if what == 'sparsity':
         pylogger = PythonLogger(msglogger)
@@ -54,7 +55,6 @@ def model_summary(model, what, dataset=None):
         total_macs = df['MACs'].sum()
         print(t)
         print("Total MACs: " + "{:,}".format(total_macs))
-
     elif what == 'model':
         # print the simple form of the model
         print(model)
@@ -69,6 +69,8 @@ def model_summary(model, what, dataset=None):
             if len(module._modules) == 0:
                 nodes.append([name, module.__class__.__name__])
         print(tabulate(nodes, headers=['Name', 'Type']))
+    else:
+        raise ValueError("%s is not a supported summary type" % what)
 
 
 def weights_sparsity_summary(model, return_total_sparsity=False, param_dims=[2,4]):
