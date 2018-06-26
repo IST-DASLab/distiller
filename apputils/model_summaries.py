@@ -178,7 +178,7 @@ class SummaryGraph(object):
             s = str(n.type())
             s = s[s.find('(')+1: s.find(')')]
             tensor['shape'] = tuple(map(lambda x: int(x), s.split(',')))
-        except:
+        except ValueError:
             # Size not specified in type
             tensor['shape'] = 0,
         return tensor
@@ -198,14 +198,14 @@ class SummaryGraph(object):
             op['attrs']['MACs'] = 0
             if op['type'] == 'Conv':
                 conv_out = op['outputs'][0]
-                conv_in =  op['inputs'][0]
+                conv_in = op['inputs'][0]
                 conv_w = op['attrs']['kernel_shape']
                 ofm_vol = self.param_volume(conv_out)
                 # MACs = volume(OFM) * (#IFM * K^2)
                 op['attrs']['MACs'] = ofm_vol * SummaryGraph.volume(conv_w) * self.params[conv_in]['shape'][1]
             elif op['type'] == 'Gemm':
-                conv_out =  op['outputs'][0]
-                conv_in =  op['inputs'][0]
+                conv_out = op['outputs'][0]
+                conv_in = op['inputs'][0]
                 n_ifm = self.param_shape(conv_in)[1]
                 n_ofm = self.param_shape(conv_out)[1]
                 # MACs = #IFM * #OFM
