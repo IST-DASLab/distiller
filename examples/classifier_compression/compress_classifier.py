@@ -210,7 +210,7 @@ def main():
 
     # Create the model
     png_summary = args.summary is not None and args.summary.startswith('png')
-    is_parallel = not png_summary and args.summary != 'compute' # For PNG summary, parallel graphs are illegible
+    is_parallel = not png_summary and args.summary != 'compute' and not args.ADC # For PNG summary, parallel graphs are illegible
     model = create_model(args.pretrained, args.dataset, args.arch, parallel=is_parallel, device_ids=args.gpus)
 
     compression_scheduler = None
@@ -238,7 +238,13 @@ def main():
 
     import ADC
     if args.ADC:
-        ADC.do_adc(model, args.dataset, args.arch)
+        train_loader, val_loader, test_loader, _ = apputils.load_data(
+            args.dataset, os.path.expanduser(args.data), args.batch_size,
+            args.workers, args.deterministic)
+        validate_fn = partial(validate, val_loader=val_loader, criterion=criterion,
+                             loggers=[pylogger], print_freq=args.print_freq)
+
+        ADC.do_adc(model, args.dataset, args.arch, val_loader, validate_fn)
         exit()
 
     # This sample application can be invoked to produce various summary reports.
