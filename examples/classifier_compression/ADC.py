@@ -32,7 +32,7 @@ def create_model_masks(model):
     return zeros_mask_dict
 
 
-USE_COACH = False
+USE_COACH = True
 def do_adc(model, dataset, arch, data_loader, validate_fn):
     if USE_COACH:
         task_parameters = TaskParameters(framework_type="tensorflow",
@@ -44,7 +44,9 @@ def do_adc(model, dataset, arch, data_loader, validate_fn):
         graph_manager.env_params.additional_simulator_parameters = {
             'model': model,
             'dataset': dataset,
-            'arch': arch
+            'arch': arch,
+            'data_loader': data_loader,
+            'validate_fn': validate_fn
         }
         graph_manager.create_graph(task_parameters)
         graph_manager.improve()
@@ -79,7 +81,7 @@ def collect_conv_details(model, dataset):
     else:
         raise ValueError("dataset %s is not supported" % dataset)
 
-    g = SummaryGraph(model, dummy_input)
+    g = SummaryGraph(model.cuda(), dummy_input.cuda())
     conv_layers = OrderedDict()
     total_macs = 0
     for id, (name, m) in enumerate(model.named_modules()):
@@ -127,7 +129,7 @@ class CNNEnvironment(gym.Env):
         # Gym
         # spaces documentation: https://gym.openai.com/docs/
         self.action_space = spaces.Box(0, 1, shape=(1,))
-        self.observation_space = spaces.Box(0, 1, shape=(self.STATE_EMBEDDING_LEN,))
+        self.observation_space = spaces.Box(0, float("inf"), shape=(self.STATE_EMBEDDING_LEN,))
         # Box(low=np.array([-1.0,-2.0]), high=np.array([2.0,4.0]))
 
     def reset(self, init_only=False):
@@ -138,6 +140,7 @@ class CNNEnvironment(gym.Env):
         self.current_layer_id = 1
         self.prev_action = 0
         self.model = copy.deepcopy(self.orig_model)
+        #self.model = self.model.cuda()
         self.zeros_mask_dict = create_model_masks(self.model)
         self._remaining_macs = self.total_macs
         self._removed_macs = 0
@@ -293,8 +296,7 @@ class CNNEnvironment(gym.Env):
         pylogger = distiller.data_loggers.PythonLogger(msglogger)
         distiller.log_weights_sparsity(self.model, -1, loggers=[pylogger])
 
-        top1, top5, vloss = self.validate_fn(model=self.model, epoch=0)
-        exit()
+        top1, top5, vloss = self.validate_fn(model=self.model.cuda(), epoch=0)
 
         _, total_macs = collect_conv_details(self.model, self.dataset)
         reward = -1 * vloss * math.log(total_macs)
