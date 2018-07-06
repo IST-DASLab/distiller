@@ -97,6 +97,13 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     help='model architecture: ' +
                     ' | '.join(ALL_MODEL_NAMES) +
                     ' (default: resnet18)')
+parser.add_argument('--teacher_arch', '-ta', metavar='TEACHER_ARCH', default='None',
+                    choices=ALL_MODEL_NAMES,
+                    help='model architecture: ' +
+                    ' | '.join(ALL_MODEL_NAMES) +
+                    ' (default: None)')
+parser.add_argument('--teacher_weights', '-twp', metavar='TEACHER_WEIGHTS_PATH', default='None', type=str,
+                    help='Path to teacher weights to load')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=90, type=int, metavar='N',
@@ -213,6 +220,20 @@ def main():
     is_parallel = not png_summary and args.summary != 'compute'  # For PNG summary, parallel graphs are illegible
     model = create_model(args.pretrained, args.dataset, args.arch, parallel=is_parallel, device_ids=args.gpus)
 
+    #If the teacher is not None, create teacher model and load it
+    if args.teacher_arch.lower() != 'none':
+        if args.teacher_weights.lower() == 'none':
+            raise ValueError('If you pass a teacher model you also have to pass the path of its weights')
+
+        teacher_model = create_model(False, args.dataset, args.teacher_arch, parallel=is_parallel, device_ids=args.gpus)
+        try:
+            teacher_model.load_state_dict(torch.load(args.teacher_weights))
+        except:
+            raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
+    else:
+        teacher_model = None
+
+
     compression_scheduler = None
     # Create a couple of logging backends.  TensorBoardLogger writes log files in a format
     # that can be read by Google's Tensor Board.  PythonLogger writes to the Python logger.
@@ -305,7 +326,8 @@ def main():
 
         # Train for one epoch
         train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
-              loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms)
+              loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
+              teacher_model=teacher_model)
         distiller.log_weights_sparsity(model, epoch, loggers=[tflogger, pylogger])
         if args.activation_stats:
             distiller.log_activation_sparsity(epoch, loggers=[tflogger, pylogger],
@@ -334,13 +356,19 @@ def main():
 
 
 def train(train_loader, model, criterion, optimizer, epoch,
-          compression_scheduler, loggers, print_freq, log_params_hist):
-    """Training loop for one epoch."""
+          compression_scheduler, loggers, print_freq, log_params_hist, teacher_model=None,
+          temperature_distillation=2, weight_distillation_loss=0.7):
+    """Training loop for one epoch. If teacher_model is not None, distillation will be used"""
     losses = {'objective_loss':   tnt.AverageValueMeter(),
               'regularizer_loss': tnt.AverageValueMeter()}
     if compression_scheduler is None:
         # Initialize the regularizer loss to zero
         losses['regularizer_loss'].add(0)
+
+    if teacher_model is not None:
+        softmax_function = nn.Softmax(dim=1).cuda()
+        log_softmax_function = nn.LogSoftmax(dim=1).cuda()
+        kldiv_loss = nn.KLDivLoss(size_average=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
 
     classerr = tnt.ClassErrorMeter(accuracy=True, topk=(1, 5))
     batch_time = tnt.AverageValueMeter()
@@ -368,6 +396,14 @@ def train(train_loader, model, criterion, optimizer, epoch,
             compression_scheduler.on_minibatch_begin(epoch, train_step, steps_per_epoch, optimizer)
         output = model(input_var)
         loss = criterion(output, target_var)
+        if teacher_model is not None:
+            with PytorchNoGrad():
+                input_var_teacher = get_inference_var(inputs)
+                output_teacher = teacher_model(input_var_teacher)
+            loss_distilled = kldiv_loss(
+                log_softmax_function(output / temperature_distillation),
+                softmax_function(output_teacher / temperature_distillation)) / output.numel()
+            loss = weight_distillation_loss*loss_distilled + (1-weight_distillation_loss)*loss
 
         # Measure accuracy and record loss
         classerr.add(output.data, target)
