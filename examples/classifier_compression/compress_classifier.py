@@ -234,7 +234,10 @@ def main():
                                          device_ids=args.gpus)
 
             try:
-                teacher_model.load_state_dict(torch.load(args.teacher_weights))
+                teacher_weights = torch.load(args.teacher_weights)
+                if 'state_dict' in teacher_weights:
+                    teacher_weights = teacher_weights['state_dict']
+                teacher_model.load_state_dict(teacher_weights)
             except:
                 raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
     else:
