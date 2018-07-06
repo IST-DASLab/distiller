@@ -222,14 +222,21 @@ def main():
 
     #If the teacher is not None, create teacher model and load it
     if args.teacher_arch.lower() != 'none':
-        if args.teacher_weights.lower() == 'none':
-            raise ValueError('If you pass a teacher model you also have to pass the path of its weights')
-
-        teacher_model = create_model(False, args.dataset, args.teacher_arch, parallel=is_parallel, device_ids=args.gpus)
         try:
-            teacher_model.load_state_dict(torch.load(args.teacher_weights))
+            teacher_model = create_model(True, args.dataset, args.teacher_arch, parallel=is_parallel,
+                                         device_ids=args.gpus)
+            print('The teacher model has been loaded from the torchvision pretrained model list. User input ignored')
         except:
-            raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
+            if args.teacher_weights.lower() == 'none':
+                raise ValueError('If you pass a teacher model you also have to pass the path of its weights')
+
+            teacher_model = create_model(False, args.dataset, args.teacher_arch, parallel=is_parallel,
+                                         device_ids=args.gpus)
+
+            try:
+                teacher_model.load_state_dict(torch.load(args.teacher_weights))
+            except:
+                raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
     else:
         teacher_model = None
 
@@ -402,7 +409,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
                 output_teacher = teacher_model(input_var_teacher)
             loss_distilled = kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
-                softmax_function(output_teacher / temperature_distillation)) / output.numel()
+                softmax_function(output_teacher / temperature_distillation)) / output.size(0)
             loss = weight_distillation_loss*loss_distilled + (1-weight_distillation_loss)*loss
 
         # Measure accuracy and record loss
