@@ -244,6 +244,7 @@ def main():
                 teacher_model.load_state_dict(teacher_weights)
             except:
                 raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
+
     else:
         teacher_model = None
 
@@ -284,6 +285,10 @@ def main():
         args.workers, args.validation_size, args.deterministic)
     msglogger.info('Dataset sizes:\n\ttraining=%d\n\tvalidation=%d\n\ttest=%d',
                    len(train_loader.sampler), len(val_loader.sampler), len(test_loader.sampler))
+
+    if teacher_model is not None:
+        t1, t5, _ = _validate(test_loader, teacher_model, criterion, None, len(test_loader) + 10)
+        print('Teacher model passed in input has Top-1 of {} and Top-5 of {}'.format(t1, t5))
 
     activations_sparsity = None
     if args.activation_stats:
