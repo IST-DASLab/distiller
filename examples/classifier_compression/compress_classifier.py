@@ -114,6 +114,10 @@ parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
+parser.add_argument('--temp_distillation', default=2, type=float, metavar='T',
+                    help='temperature for distillation')
+parser.add_argument('--weight_distillation_loss', default=0.7, type=float, metavar='W',
+                    help='weight for distillation loss')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
 parser.add_argument('--print-freq', '-p', default=10, type=int,
@@ -337,7 +341,8 @@ def main():
         # Train for one epoch
         train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
               loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
-              teacher_model=teacher_model)
+              teacher_model=teacher_model, temperature_distillation=args.temp_distillation,
+              weight_distillation_loss=args.weight_distillation_loss)
         distiller.log_weights_sparsity(model, epoch, loggers=[tflogger, pylogger])
         if args.activation_stats:
             distiller.log_activation_sparsity(epoch, loggers=[tflogger, pylogger],
