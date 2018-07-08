@@ -120,6 +120,8 @@ parser.add_argument('--weight_distillation_loss', default=0.7, type=float, metav
                     help='weight for distillation loss')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
+parser.add_argument('--start_distillation_from_epoch', '-sdfe', default=1, type=int,
+                    help='Epoch at which we start training with distillation')
 parser.add_argument('--print-freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
@@ -344,10 +346,16 @@ def main():
             compression_scheduler.on_epoch_begin(epoch)
 
         # Train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
-              loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
-              teacher_model=teacher_model, temperature_distillation=args.temp_distillation,
-              weight_distillation_loss=args.weight_distillation_loss)
+        if epoch >= args.start_distillation_from_epoch:
+            train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
+                  loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
+                  teacher_model=teacher_model, temperature_distillation=args.temp_distillation,
+                  weight_distillation_loss=args.weight_distillation_loss)
+        else:
+            train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
+                  loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
+                  teacher_model=None)
+
         distiller.log_weights_sparsity(model, epoch, loggers=[tflogger, pylogger])
         if args.activation_stats:
             distiller.log_activation_sparsity(epoch, loggers=[tflogger, pylogger],
