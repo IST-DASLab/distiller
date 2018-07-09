@@ -428,7 +428,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
             with PytorchNoGrad():
                 input_var_teacher = get_inference_var(inputs)
                 output_teacher = teacher_model(input_var_teacher)
-            loss_distilled = kldiv_loss(
+            loss_distilled = (temperature_distillation**2) * kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
                 softmax_function(output_teacher / temperature_distillation)) / output.size(0)
             loss = weight_distillation_loss*loss_distilled + (1-weight_distillation_loss)*loss
