@@ -135,7 +135,7 @@ def load_checkpoint(model, chkpt_file, optimizer=None):
         msglogger.info("=> loaded checkpoint '%s' (epoch %d)", chkpt_file, checkpoint['epoch'])
         try:
             model.load_state_dict(checkpoint['state_dict'])
-        except KeyError:
+        except:
             model.load_state_dict(convert_state_dict_from_data_parallel(checkpoint['state_dict']))
         return model, compression_scheduler, start_epoch
     else:
