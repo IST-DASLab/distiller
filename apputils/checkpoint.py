@@ -25,7 +25,24 @@ import shutil
 import logging
 import torch
 import distiller
+from collections import OrderedDict
 msglogger = logging.getLogger()
+
+def convert_state_dict_from_data_parallel(state_dict):
+
+    '''
+    Converts a state dict that was saved with data parallel to one tha can be loaded
+    by a non-data parallel module
+    '''
+
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        if k.startswith('module.'):
+            name = k[7:]  # remove `module.`
+        else:
+            raise ValueError('The state_dict passed was not saved by a data parallel instance')
+        new_state_dict[name] = v
+    return new_state_dict
 
 
 def save_checkpoint(epoch, arch, model, optimizer=None, scheduler=None,
@@ -116,8 +133,10 @@ def load_checkpoint(model, chkpt_file, optimizer=None):
             quantizer.prepare_model()
 
         msglogger.info("=> loaded checkpoint '%s' (epoch %d)", chkpt_file, checkpoint['epoch'])
-
-        model.load_state_dict(checkpoint['state_dict'])
+        try:
+            model.load_state_dict(checkpoint['state_dict'])
+        except KeyError:
+            model.load_state_dict(convert_state_dict_from_data_parallel(checkpoint['state_dict']))
         return model, compression_scheduler, start_epoch
     else:
         msglogger.info("Error: no checkpoint found at %s", chkpt_file)
