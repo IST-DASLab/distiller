@@ -19,6 +19,7 @@
 import torch
 import torchvision.models as torch_models
 import models.cifar10 as cifar10_models
+import models.cifar100 as cifar100_models
 import models.imagenet as imagenet_extra_models
 
 import logging
@@ -35,7 +36,11 @@ CIFAR10_MODEL_NAMES = sorted(name for name in cifar10_models.__dict__
                              if name.islower() and not name.startswith("__")
                              and callable(cifar10_models.__dict__[name]))
 
-ALL_MODEL_NAMES = sorted(set(IMAGENET_MODEL_NAMES + CIFAR10_MODEL_NAMES))
+CIFAR100_MODEL_NAMES = sorted(name for name in cifar100_models.__dict__
+                             if name.islower() and not name.startswith("__")
+                             and callable(cifar100_models.__dict__[name]))
+
+ALL_MODEL_NAMES = sorted(set(IMAGENET_MODEL_NAMES + CIFAR10_MODEL_NAMES + CIFAR100_MODEL_NAMES))
 
 
 def create_model(pretrained, dataset, arch, parallel=True, device_ids=None):
@@ -64,6 +69,11 @@ def create_model(pretrained, dataset, arch, parallel=True, device_ids=None):
         assert not pretrained, "Model %s (CIFAR10) does not have a pretrained model" % arch
         assert arch in cifar10_models.__dict__, "Model %s is not supported for dataset CIFAR10" % arch
         model = cifar10_models.__dict__[arch]()
+    elif dataset == 'cifar100':
+        msglogger.info("=> creating %s model for CIFAR100" % arch)
+        assert not pretrained, "Model %s (CIFAR100) does not have a pretrained model" % arch
+        assert arch in cifar100_models.__dict__, "Model %s is not supported for dataset CIFAR100" % arch
+        model = cifar100_models.__dict__[arch]()
     else:
         print("FATAL ERROR: create_model does not support models for dataset %s" % dataset)
         exit()

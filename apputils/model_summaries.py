@@ -508,7 +508,7 @@ def draw_img_classifier_to_file(model, png_fname, dataset, display_param_nodes=F
     try:
         if dataset == 'imagenet':
             dummy_input = Variable(torch.randn(1, 3, 224, 224), requires_grad=False)
-        elif dataset == 'cifar10':
+        elif dataset in ('cifar10', 'cifar100'):
             dummy_input = Variable(torch.randn(1, 3, 32, 32))
         else:
             print("Unsupported dataset (%s) - aborting draw operation" % dataset)
