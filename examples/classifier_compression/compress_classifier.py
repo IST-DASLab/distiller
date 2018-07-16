@@ -92,6 +92,7 @@ def float_range(val_str):
 
 parser = argparse.ArgumentParser(description='Distiller image classification model compression')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
+parser.add_argument('dataset', help='cifar10 - cifar100 - imagenet', default='none')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     choices=ALL_MODEL_NAMES,
                     help='model architecture: ' +
@@ -219,7 +220,8 @@ def main():
         torch.cuda.set_device(args.gpus[0])
 
     # Infer the dataset from the model name
-    args.dataset = 'cifar10' if 'cifar' in args.arch else 'imagenet'
+    if args.dataset.lower() == 'none':
+        args.dataset = 'cifar10' if 'cifar' in args.arch else 'imagenet'
 
     # Create the model
     png_summary = args.summary is not None and args.summary.startswith('png')
