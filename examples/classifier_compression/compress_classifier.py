@@ -92,7 +92,7 @@ def float_range(val_str):
 
 parser = argparse.ArgumentParser(description='Distiller image classification model compression')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
-parser.add_argument('dataset', help='cifar10 - cifar100 - imagenet', default='none')
+parser.add_argument('--dataset', help='cifar10 - cifar100 - imagenet', default='none')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     choices=ALL_MODEL_NAMES,
                     help='model architecture: ' +

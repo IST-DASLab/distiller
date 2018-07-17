@@ -26,7 +26,7 @@ import torchvision.datasets as datasets
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 
-DATASETS_NAMES = ['imagenet', 'cifar10']
+DATASETS_NAMES = ['imagenet', 'cifar10', 'cifar100']
 
 
 def load_data(dataset, data_dir, batch_size, workers, valid_size=0.1, deterministic=False):
