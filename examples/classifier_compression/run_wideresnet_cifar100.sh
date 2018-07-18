@@ -1,6 +1,6 @@
 #train wide_resnet22 (student) from scratch 
 
-#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --name="student_resnet_22_cifar_100"
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --name="student_resnet_22_cifar_100"
 
 # train wide_resnet28 (teacher) from scratch
 
@@ -14,6 +14,12 @@ CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresne
 
 CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=400 -j=1 --compress=../agp-pruning/wideresnet22.schedule_70.yaml --name="student_resnet_22_cifar_100_70percent_pruning"
 
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch teacher_wideresnet --teacher_weights ./logs/teacher_resnet_28_cifar_100___2018.07.17-080637/teacher_resnet_28_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=400 -j=1 --compress=../agp-pruning/wideresnet22.schedule_90.yaml --name="distilled_student_resnet_22_cifar_100_90percent_pruning"
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch teacher_wideresnet --teacher_weights ./logs/teacher_resnet_28_cifar_100___2018.07.17-080637/teacher_resnet_28_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=400 -j=1 --compress=../agp-pruning/wideresnet22.schedule_80.yaml --name="distilled_student_resnet_22_cifar_100_80percent_pruning"
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch teacher_wideresnet --teacher_weights ./logs/teacher_resnet_28_cifar_100___2018.07.17-080637/teacher_resnet_28_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=400 -j=1 --compress=../agp-pruning/wideresnet22.schedule_70.yaml --name="distilled_student_resnet_22_cifar_100_70percent_pruning"
 
 #CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar  ../data.cifar10 -p=50 --lr=0.3 --epochs=180 --compress=../ssl/resnet20_cifar_baseline_training.yaml -j=1 --name="resnet20_cifar_baseline_run"
 
