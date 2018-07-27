@@ -1,5 +1,10 @@
 #train wide_resnet22 (student) from scratch 
 
+CUDA_VISIBLE_DEVICES=0,1 python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=4 --compress=../agp-pruning/wideresnet22.schedule_0.yaml --name="teacher_resnet_cifar_100" || CUDA_VISIBLE_DEVICES=2,3 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=4 --compress=../agp-pruning/wideresnet22.schedule_0.yaml --name="teacher_resnet_cifar_100"
+
+
+
+
 #CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --name="student_resnet_22_cifar_100"
 
 # train wide_resnet28 (teacher) from scratch
