@@ -9,7 +9,7 @@ import sys
 import numpy as np
 
 __all__ = ['teacher_wideresnet', 'student_wideresnet']
-teacher_options = {'widen_factor':16, 'depth':34, 'dropout_rate':0.3, 'num_classes':100}
+teacher_options = {'widen_factor':14, 'depth':34, 'dropout_rate':0.3, 'num_classes':100}
 student_options = {'widen_factor':8, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 
 #TODO: Some of the things are not equal to the model definition (from the authors)
