@@ -53,7 +53,7 @@ pruners:
   fc_pruner:
     class: 'AutomatedGradualPruner'
     initial_sparsity : 0.05
-    final_sparsity: 0.91
+    final_sparsity: 0.95
     weights: ['classifier.1.weight', 'classifier.4.weight']
 
   fc3_pruner:
@@ -70,7 +70,7 @@ pruners:
   conv2_pruner:
     class: 'AutomatedGradualPruner'
     initial_sparsity : 0.03
-    final_sparsity: 0.62
+    final_sparsity: 0.65
     weights: ['features.module.3.weight']
 
   conv3_pruner:
@@ -82,7 +82,7 @@ pruners:
   conv45_pruner:
     class: 'AutomatedGradualPruner'
     initial_sparsity : 0.03
-    final_sparsity: 0.43
+    final_sparsity: 0.5
     weights: ['features.module.8.weight', 'features.module.10.weight']
 
 lr_schedulers:
