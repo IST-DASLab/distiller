@@ -1,12 +1,25 @@
 #train wide_resnet22 (student) from scratch 
 
-python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=8 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_cifar_100_98_pruning"
+#python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=8 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_cifar_100_98_pruning"
 
-python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=180 -j=8 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="teacher_cifar_100_98_pruning"
+#python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=180 -j=8 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="teacher_cifar_100_98_pruning"
 
-python3.6 compress_classifier.py --deterministic --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="resnet_22_cifar_100_98_pruning"
+#python3.6 compress_classifier.py --deterministic --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="resnet_22_cifar_100_98_pruning"
 
-python3.6 compress_classifier.py --deterministic --arch student_wideresnet --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=400 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="self_distilled_resnet_22_cifar_100_98_pruning"
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=200 --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="200_self_distilled_resnet_22_cifar_100_98_pruning"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=205 --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="205_self_distilled_resnet_22_cifar_100_98_pruning"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=210 --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="210_self_distilled_resnet_22_cifar_100_98_pruning"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=215 --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="215_self_distilled_resnet_22_cifar_100_98_pruning"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=220 --teacher_arch student_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="220_self_distilled_resnet_22_cifar_100_98_pruning"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=220  ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="wideresnet_student_baseline"
+
+python3.6 compress_classifier.py --deterministic --arch student_wideresnet --start_distillation_from_epoch=220 --teacher_arch teacher_wideresnet --teacher_weights ./logs/student_resnet_cifar_100___2018.07.27-110549/student_resnet_cifar_100_best.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="wideresnet_larger_teacher"
+
 
 
 
