@@ -69,7 +69,7 @@ pruners:
   mid_pruner:
     class:  AutomatedGradualPruner
     initial_sparsity : 0.05
-    final_sparsity: 0.75
+    final_sparsity: 0.875
     weights: [layer2.0.conv1,
             layer2.0.conv2,
             layer2.0.conv3,
