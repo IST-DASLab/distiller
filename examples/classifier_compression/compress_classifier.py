@@ -170,6 +170,36 @@ def check_pytorch_version():
         exit(1)
 
 
+def convert_state_dict_to_data_parallel(state_dict):
+
+    '''
+    Converts a state dict that was saved without data parallel to one tha can be loaded
+    by a data parallel module
+    '''
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        name = 'module.' + k
+        new_state_dict[name] = v
+    return new_state_dict
+
+def convert_state_dict_from_data_parallel(state_dict):
+
+    '''
+    Converts a state dict that was saved with data parallel to one tha can be loaded
+    by a non-data parallel module
+    '''
+
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        if k.startswith('module.'):
+            name = k[7:]  # remove `module.`
+        else:
+            raise ValueError('The state_dict passed was not saved by a data parallel instance')
+        new_state_dict[name] = v
+    return new_state_dict
+
+
+
 def main():
     global msglogger
     check_pytorch_version()
@@ -245,7 +275,13 @@ def main():
                 teacher_weights = torch.load(args.teacher_weights)
                 if 'state_dict' in teacher_weights:
                     teacher_weights = teacher_weights['state_dict']
+                #if isinstance(teacher_model, torch.nn.parallel.DataParallel):
+                #    teacher_weights = convert_state_dict_to_data_parallel(teacher_weights)
+                #else:
+                #    teacher_weights = convert_state_dict_from_data_parallel(state_dict)    
+                    
                 teacher_model.load_state_dict(teacher_weights)
+                
             except:
                 raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
 
@@ -377,9 +413,13 @@ def main():
 
         # remember best top1 and save checkpoint
         is_best = top1 > best_top1
-        best_top1 = max(top1, best_top1)
+        if is_best:
+            best_epoch = epoch
+            best_top1 = top1
+        msglogger.info('==> Best validation Top1: %.3f   Epoch: %d', best_top1, best_epoch)
         apputils.save_checkpoint(epoch, args.arch, model, optimizer, compression_scheduler, best_top1, is_best,
                                  args.name, msglogger.logdir)
+
 
     # Finally run results on the test set
     test(test_loader, model, criterion, [pylogger], args.print_freq)
