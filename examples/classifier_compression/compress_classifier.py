@@ -274,16 +274,19 @@ def main():
             try:
                 teacher_weights = torch.load(args.teacher_weights)
                 if 'state_dict' in teacher_weights:
-                    teacher_weights = teacher_weights['state_dict']
-                #if isinstance(teacher_model, torch.nn.parallel.DataParallel):
-                #    teacher_weights = convert_state_dict_to_data_parallel(teacher_weights)
-                #else:
-                #    teacher_weights = convert_state_dict_from_data_parallel(state_dict)    
-                    
+                    teacher_weights = teacher_weights['state_dict']                      
                 teacher_model.load_state_dict(teacher_weights)
                 
             except:
-                raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
+                if isinstance(teacher_model, torch.nn.parallel.DataParallel):
+                    teacher_weights = convert_state_dict_to_data_parallel(teacher_weights)
+                else:
+                    teacher_weights = convert_state_dict_from_data_parallel(teacher_weights)  
+                
+                try:
+                    teacher_model.load_state_dict(teacher_weights)
+                except:
+                    raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
 
     else:
         teacher_model = None

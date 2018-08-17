@@ -60,7 +60,7 @@ class ActivationSparsityCollector(DataCollector):
     def value(self):
         """Return a dictionary containing {layer_name: mean sparsity}"""
         activation_sparsity = {}
-        _collect_activations_sparsity(self.model, activation_sparsity)
+        ActivationSparsityCollector._collect_activations_sparsity(self.model, activation_sparsity)
         return activation_sparsity
 
 
@@ -88,7 +88,7 @@ class ActivationSparsityCollector(DataCollector):
     @staticmethod
     def _collect_activations_sparsity(model, activation_sparsity, name=''):
         for name, module in model._modules.items():
-            _collect_activations_sparsity(module, activation_sparsity, name)
+            ActivationSparsityCollector._collect_activations_sparsity(module, activation_sparsity, name)
 
         if hasattr(model, 'sparsity'):
             activation_sparsity[model.sparsity.name] = model.sparsity.mean

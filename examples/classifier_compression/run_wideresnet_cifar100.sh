@@ -16,9 +16,9 @@
 
 #CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_resnet_22_cifar_100_baseline"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet  ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=../ssl/wideresnet_ssl_channels_removal.yaml -j=1 --deterministic --name="rati experiment"
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --act-stats  ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/wideresnet22.schedule_90.yaml -j=1 --deterministic --name="baseline_experiment"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning"
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --act-stats ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning"
 
 CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch student_wideresnet --teacher_weights ../../checkpoints/student_wideresnet_cifar_100.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning_selfdistilled"
 
