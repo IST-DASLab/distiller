@@ -10,7 +10,7 @@ import numpy as np
 
 __all__ = ['teacher_wideresnet', 'student_wideresnet']
 teacher_options = {'widen_factor':10, 'depth':34, 'dropout_rate':0.3, 'num_classes':100}
-student_options = {'widen_factor':6, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+student_options = {'widen_factor':4, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 
 #TODO: Some of the things are not equal to the model definition (from the authors)
 # which is here: https://github.com/szagoruyko/functional-zoo/blob/master/wide-resnet-50-2-export.ipynb
