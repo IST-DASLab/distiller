@@ -134,11 +134,12 @@ policies:
     ending_epoch: 24
     frequency: 2
     
-    - pruner:
+  - pruner:
       instance_name : low_pruner
     starting_epoch: 2
     ending_epoch: 20
     frequency: 2
+    
 
   - lr_scheduler:
       instance_name: pruning_lr
