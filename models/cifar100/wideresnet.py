@@ -9,8 +9,8 @@ import sys
 import numpy as np
 
 __all__ = ['teacher_wideresnet', 'student_wideresnet']
-teacher_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
-student_options = {'widen_factor':1, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+teacher_options = {'widen_factor':4, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+student_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 
 baseline_options = {'widen_factor':1, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 baseline_dense_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}

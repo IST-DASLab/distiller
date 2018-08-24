@@ -17,8 +17,37 @@
 
 
 
-#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar ../../data.cifar100 -p=50 --lr=0.3 --epochs=600 --compress=../agp-pruning/resnet20.schedule_agp_progressive.yaml -j=1 --name="resnet_20_cifar_100"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar ../../data.cifar10 -p=50 --lr=0.3 --epochs=180 --compress=../agp-pruning/resnet20.schedule_agp_progressive.yaml -j=1 --name="resnet_20_cifar_10"
 
 #CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 ../../data.cifar100 -p=50 --lr=0.3 --epochs=600 --compress=../agp-pruning/resnet20.schedule_agp_progressive.yaml -j=1 --name="resnet_20_cifar_100"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=600 --compress=../agp-pruning/resnet20.schedule_agp_progressive.yaml -j=1 --name="resnet_20_cifar_100"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar ../../data.cifar100 --dataset=cifar10 -p=50 --lr=0.3 --epochs=200 --compress=../agp-pruning/resnet20.schedule_agp_baseline.yaml -j=1 --name="resnet_20_cifar_10_baseline"
+
+
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=200 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_baseline"
+
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet56_cifar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=200 --compress=../agp-pruning/resnet20.schedule_agp.yaml -j=1 --name="resnet_56_cifar_10_baseline"
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_95_distilled" 
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.5" --weight_distillation_loss 0.5
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.3" --weight_distillation_loss 0.3
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_3.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.5_3" --weight_distillation_loss 0.5
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_3.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.9_3" --weight_distillation_loss 0.9
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_3.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.7_3" --weight_distillation_loss 0.7
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_4.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.7_4" --weight_distillation_loss 0.7
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet56_cifar --teacher_weights ../../checkpoints/resnet_56_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_4.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_56_0.7_4" --weight_distillation_loss 0.7
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet56_cifar --teacher_weights ../../checkpoints/resnet_56_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_56" --weight_distillation_loss 0.7
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet56_cifar --teacher_weights ../../checkpoints/resnet_56_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_56_from_220" --weight_distillation_loss 0.7 --start_distillation_from_epoch 220
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_4.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.7_4_from_240" --weight_distillation_loss 0.7 --start_distillation_from_epoch 240
+
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet20_cifar --teacher_arch resnet20_cifar --teacher_weights ../../checkpoints/resnet_20_cifar_10.pth.tar ../data.cifar10 --dataset=cifar10 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/resnet20.schedule_agp_95_3.yaml -j=1 --name="resnet_20_cifar_10_95_distilled_0.7_3_from_230" --weight_distillation_loss 0.7  --start_distillation_from_epoch 230

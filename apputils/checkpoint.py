@@ -109,10 +109,11 @@ def load_checkpoint(model, chkpt_file, optimizer=None):
             msglogger.info("   best top@1: %.3f", best_top1)
 
         if 'compression_sched' in checkpoint:
-            compression_scheduler = distiller.CompressionScheduler(model)
-            compression_scheduler.load_state_dict(checkpoint['compression_sched'])
-            msglogger.info("Loaded compression schedule from checkpoint (epoch %d)",
-                           checkpoint['epoch'])
+            #compression_scheduler = distiller.CompressionScheduler(model)
+            #compression_scheduler.load_state_dict(checkpoint['compression_sched'])
+            #msglogger.info("Loaded compression schedule from checkpoint (epoch %d)",
+            #               checkpoint['epoch'])
+            msglogger.info("Warning: this is a hack to skip loading the compression scheduler")
         else:
             msglogger.info("Warning: compression schedule data does not exist in the checkpoint")
 
