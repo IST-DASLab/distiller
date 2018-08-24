@@ -131,7 +131,7 @@ policies:
   - pruner:
       instance_name : mid_pruner
     starting_epoch: 2
-    ending_epoch: 20
+    ending_epoch: 24
     frequency: 2
     
     - pruner:
