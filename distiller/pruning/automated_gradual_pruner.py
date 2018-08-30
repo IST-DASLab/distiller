@@ -34,7 +34,7 @@ class AutomatedGradualPruner(_ParameterPruner):
         super(AutomatedGradualPruner, self).__init__(name)
         self.initial_sparsity = initial_sparsity
         self.final_sparsity = final_sparsity
-        assert final_sparsity > initial_sparsity
+#        assert final_sparsity > initial_sparsity
         self.params_names = weights
         assert self.params_names
 
