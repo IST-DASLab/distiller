@@ -26,7 +26,7 @@ def unmask_values_random(mask, number_to_unmask):
     :param number_to_unmask: How many zeros to flip to one; will be chosen uniformly at random
     :return: The modified mask
 
-    This method will implement reservoir sampling to achieve uniform sampling in unmasking the zeros.
+    This function implements reservoir sampling to achieve uniform sampling in unmasking the zeros.
     '''
 
     if number_to_unmask <= 0: return mask
@@ -79,7 +79,7 @@ class SparsityLevelParameterPruner(_ParameterPruner):
     def prune_level(param, param_name, zeros_mask_dict, desired_sparsity):
         expected_number_pruned_values = int(desired_sparsity * param.numel())
         #No need to sort, just take min later - it's O(k) vs O(k log k)
-        bottomk, _ = torch.topk(param.abs().view(-1), expected_number_pruned_values)
+        bottomk, _ = torch.topk(param.data.abs().view(-1), expected_number_pruned_values)
         threshold = bottomk.min() # This is the largest element from the group of elements that we prune away
         parameter_weight_mask = distiller.threshold_mask(param.data, threshold)
 
@@ -88,7 +88,7 @@ class SparsityLevelParameterPruner(_ParameterPruner):
         number_pruned_values = (parameter_weight_mask==0).int().sum()
 
         if number_pruned_values < expected_number_pruned_values:
-            raise ValueError('Number of pruned value should be higher than the desired sparsity')
+            raise ValueError('Number of pruned values should always be higher than the desired sparsity')
 
         # We will unmask values at random so to ensure that the final mask has the desired sparsity
         number_values_to_unmask = number_pruned_values-expected_number_pruned_values
