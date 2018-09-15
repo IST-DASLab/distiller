@@ -75,14 +75,14 @@ lr_schedulers:
 policies:
   - pruner:
       instance_name : first_pruner
-    starting_epoch: 10
-    ending_epoch: 20
+    starting_epoch: 3
+    ending_epoch: 5
     frequency: 1
 
   - pruner:
       instance_name : second_pruner
-    starting_epoch: 20
-    ending_epoch: 200
+    starting_epoch: 6
+    ending_epoch: 10
     frequency: 1
 
   - lr_scheduler:

@@ -404,16 +404,14 @@ def main():
 
         # evaluate on validation set
         top1, top5, vloss = validate(val_loader, model, criterion, [pylogger], args.print_freq, epoch)
-        stats = ('Peformance/Validation/',
+        stats = ('Performance/Validation/',
                  OrderedDict([('Loss', vloss),
                               ('Top1', top1),
                               ('Top5', top5)]))
         distiller.log_training_progress(stats, None, epoch, steps_completed=0, total_steps=1,
                                         log_freq=1, loggers=[tflogger])
 
-        if compression_scheduler:
-            compression_scheduler.on_epoch_end(epoch, optimizer)
-
+		
         # remember best top1 and save checkpoint
         is_best = top1 > best_top1
         if is_best:
@@ -422,6 +420,18 @@ def main():
         msglogger.info('==> Best validation Top1: %.3f   Epoch: %d', best_top1, best_epoch)
         apputils.save_checkpoint(epoch, args.arch, model, optimizer, compression_scheduler, best_top1, is_best,
                                  args.name, msglogger.logdir)
+
+        ttop1, ttop5, tloss = test(test_loader, model, criterion, [pylogger], args.print_freq)
+        stats = ('Performance/Testing/',
+                 OrderedDict([('Loss', tloss),
+                              ('Top1', ttop1),
+                              ('Top5', ttop5)]))
+        distiller.log_training_progress(stats, None, epoch, steps_completed=0, total_steps=1,
+                                        log_freq=1, loggers=[tflogger])
+
+
+        if compression_scheduler:
+            compression_scheduler.on_epoch_end(epoch, optimizer)
 
 
     # Finally run results on the test set

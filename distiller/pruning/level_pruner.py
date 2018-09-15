@@ -79,13 +79,13 @@ class SparsityLevelParameterPruner(_ParameterPruner):
     def prune_level(param, param_name, zeros_mask_dict, desired_sparsity):
         expected_number_pruned_values = int(desired_sparsity * param.numel())
         #No need to sort, just take min later - it's O(k) vs O(k log k)
-        bottomk, _ = torch.topk(param.data.abs().view(-1), expected_number_pruned_values)
-        threshold = bottomk.min() # This is the largest element from the group of elements that we prune away
+        bottomk, _ = torch.topk(param.data.abs().view(-1), expected_number_pruned_values, largest=False, sorted=True)
+        threshold = bottomk.data[-1] # This is the largest element from the group of elements that we prune away
         parameter_weight_mask = distiller.threshold_mask(param.data, threshold)
 
-        # The percentage of pruned weights now it's larger or equal than the desired sparsity. We would like it to make
-        # sure that it's actually equal, otherwise it will enforce a lot more weights to be zero than expected
-        number_pruned_values = (parameter_weight_mask==0).int().sum()
+        # The percentage of pruned weights now may be larger or equal than the desired sparsity.
+        # We would like to make sure that it's actually equal, otherwise it will enforce a lot more weights to be zero than expected
+        number_pruned_values = int((parameter_weight_mask==0).int().sum())
 
         if number_pruned_values < expected_number_pruned_values:
             raise ValueError('Number of pruned values should always be higher than the desired sparsity')
@@ -98,4 +98,4 @@ class SparsityLevelParameterPruner(_ParameterPruner):
         # some debug information - can delete after code works correctly
         print('Expected percentage of pruned values: {}'.format(desired_sparsity))
         print('Actual percentage before fix: {}'.format(number_pruned_values / param.numel()))
-        print('Actual percentage after fix: {}'.format((parameter_weight_mask==0).int().sum() / param.numel()))
+        print('Actual percentage after fix: {}'.format(int((parameter_weight_mask==0).int().sum()) / param.numel()))
