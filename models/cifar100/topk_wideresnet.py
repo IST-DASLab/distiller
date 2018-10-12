@@ -37,7 +37,8 @@ class wide_basic(nn.Module):
         self.dropout = nn.Dropout(p=dropout_rate)
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=True)
-        self.topk_act = topk_activation(K)
+        self.topk_act_1 = topk_activation(K)
+        #self.topk_act_2 = topk_activation(K)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != planes:
@@ -46,8 +47,8 @@ class wide_basic(nn.Module):
             )
 
     def forward(self, x):
-        out = self.dropout(self.conv1(self.topk_act(self.bn1(x))))
-        out = self.conv2(self.topk_act(self.bn2(out)))
+        out = self.dropout(self.conv1((self.bn1(x))))
+        out = self.conv2((self.bn2( self.topk_act_1( out ) )))
         out += self.shortcut(x)
 
         return out
@@ -56,7 +57,7 @@ class TopK_Wide_ResNet(nn.Module):
     def __init__(self, depth, widen_factor, dropout_rate, num_classes,K=256):
         super(TopK_Wide_ResNet, self).__init__()
         self.in_planes = 16
-        self.topk_act = topk_activation(K)
+#        self.topk_act = topk_activation(K)
 
         assert ((depth-4)%6 ==0), 'Wide-resnet depth should be 6n+4'
         n = int((depth-4)/6)
@@ -87,7 +88,7 @@ class TopK_Wide_ResNet(nn.Module):
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
-        out = self.topk_act(self.bn1(out))
+        out = self.bn1(out)
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
