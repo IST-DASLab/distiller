@@ -65,31 +65,39 @@
 
 version: 1
 pruners:
-  high_pruner:
+  first_pruner:
     class: AutomatedGradualPruner
     initial_sparsity : 0.05
-    final_sparsity: 0.5
+    final_sparsity: 0.8
     weights: [module.layer3.1.conv1.weight,  module.layer3.1.conv2.weight,
               module.layer4.0.conv1.weight,  module.layer4.0.conv2.weight, 
-              module.layer4.1.conv1.weight, module.layer4.1.conv2.weight]
-
-  low_pruner:
-    class:  AutomatedGradualPruner
-    initial_sparsity : 0.05
-    final_sparsity: 0.5
-    weights: [module.layer1.1.conv1.weight,  module.layer1.1.conv2.weight, 
+              module.layer4.1.conv1.weight, module.layer4.1.conv2.weight,
+              module.layer1.1.conv1.weight,  module.layer1.1.conv2.weight, 
             module.layer1.0.conv1.weight,  module.layer1.0.conv2.weight, 
-            module.layer4.0.downsample.0.weight]
-
-  mid_pruner:
-    class:  AutomatedGradualPruner
-    initial_sparsity : 0.05
-    final_sparsity: 0.5
-    weights: [module.layer2.0.conv2.weight, 
+            module.layer4.0.downsample.0.weight,
+              module.layer2.0.conv2.weight, 
             module.layer2.0.conv1.weight,  module.layer2.0.downsample.0.weight,
               module.layer3.0.conv2.weight,  
               module.layer2.1.conv1.weight,  module.layer2.1.conv2.weight,
-              module.layer3.0.conv1.weight]
+              module.layer3.0.conv1.weight
+              ]
+
+  adding_pruner:
+    class: AutomatedGradualPruner
+    initial_sparsity : 0.8
+    final_sparsity: 0.7
+    weights: [module.layer3.1.conv1.weight,  module.layer3.1.conv2.weight,
+              module.layer4.0.conv1.weight,  module.layer4.0.conv2.weight, 
+              module.layer4.1.conv1.weight, module.layer4.1.conv2.weight,
+              module.layer1.1.conv1.weight,  module.layer1.1.conv2.weight, 
+            module.layer1.0.conv1.weight,  module.layer1.0.conv2.weight, 
+            module.layer4.0.downsample.0.weight,
+              module.layer2.0.conv2.weight, 
+            module.layer2.0.conv1.weight,  module.layer2.0.downsample.0.weight,
+              module.layer3.0.conv2.weight,  
+              module.layer2.1.conv1.weight,  module.layer2.1.conv2.weight,
+              module.layer3.0.conv1.weight
+              ]
 
 lr_schedulers:
    pruning_lr:
@@ -99,25 +107,19 @@ lr_schedulers:
 
 policies:
   - pruner:
-      instance_name : low_pruner
+      instance_name : first_pruner
     starting_epoch: 0
     ending_epoch: 16
     frequency: 2
 
   - pruner:
-      instance_name : mid_pruner
-    starting_epoch: 4
-    ending_epoch: 16
-    frequency: 2
-
-  - pruner:
-      instance_name : high_pruner
-    starting_epoch: 4
-    ending_epoch: 16
-    frequency: 2
+      instance_name : adding_pruner
+    starting_epoch: 40
+    ending_epoch: 42
+    frequency: 1
 
   - lr_scheduler:
       instance_name: pruning_lr
     starting_epoch: 13
-    ending_epoch: 100
+    ending_epoch: 40
     frequency: 1

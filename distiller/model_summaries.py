@@ -48,6 +48,8 @@ def model_summary(model, what, dataset=None):
             dummy_input = Variable(torch.randn(1, 3, 224, 224))
         elif dataset in ('cifar10', 'cifar100'):
             dummy_input = Variable(torch.randn(1, 3, 32, 32))
+        elif dataset == 'ucf101':
+            dummy_input = Variable(torch.rand(1, 3, 16, 112, 112))
         else:
             print("Unsupported dataset (%s) - aborting compute operation" % dataset)
             return
