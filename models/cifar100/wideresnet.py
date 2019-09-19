@@ -8,9 +8,64 @@ from torch.autograd import Variable
 import sys
 import numpy as np
 
-__all__ = ['teacher_wideresnet', 'student_wideresnet']
-teacher_options = {'widen_factor':12, 'depth':46, 'dropout_rate':0.3, 'num_classes':100}
-student_options = {'widen_factor':8, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+__all__ = ['teacher_wideresnet', 'student_wideresnet', 
+			'resnet10x1', 'resnet10x2', 'resnet10x4', 'resnet10x8', 'resnet10x16',
+			'resnet16x1', 'resnet16x2', 'resnet16x4', 'resnet16x8', 'resnet16x16',
+			'resnet22x1', 'resnet22x2', 'resnet22x4', 'resnet22x8', 'resnet22x16',
+			'resnet28x1', 'resnet28x2', 'resnet28x4', 'resnet28x8', 'resnet28x16',
+			'resnet40x1', 'resnet40x2', 'resnet40x4', 'resnet40x8', 'resnet40x16',
+			'resnet82x1', 'resnet82x2', 'resnet82x4', 'resnet82x8', 'resnet82x16',
+			'resnet160x1', 'resnet160x2', 'resnet160x4', 'resnet160x8', 'resnet160x16',
+]
+
+resnet10x1_options = {'widen_factor':1, 'depth':10, 'dropout_rate':0.3, 'num_classes':100}
+resnet10x2_options = {'widen_factor':2, 'depth':10, 'dropout_rate':0.3, 'num_classes':100}
+resnet10x4_options = {'widen_factor':4, 'depth':10, 'dropout_rate':0.3, 'num_classes':100}
+resnet10x8_options = {'widen_factor':8, 'depth':10, 'dropout_rate':0.3, 'num_classes':100}
+resnet10x16_options = {'widen_factor':16, 'depth':10, 'dropout_rate':0.3, 'num_classes':100}
+
+resnet16x1_options = {'widen_factor':1, 'depth':16, 'dropout_rate':0.3, 'num_classes':100}
+resnet16x2_options = {'widen_factor':2, 'depth':16, 'dropout_rate':0.3, 'num_classes':100}
+resnet16x4_options = {'widen_factor':4, 'depth':16, 'dropout_rate':0.3, 'num_classes':100}
+resnet16x8_options = {'widen_factor':8, 'depth':16, 'dropout_rate':0.3, 'num_classes':100}
+resnet16x16_options = {'widen_factor':16, 'depth':16, 'dropout_rate':0.3, 'num_classes':100}
+
+resnet22x1_options = {'widen_factor':1, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+resnet22x2_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+resnet22x4_options = {'widen_factor':4, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+resnet22x8_options = {'widen_factor':8, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+resnet22x16_options = {'widen_factor':16, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
+
+resnet28x1_options = {'widen_factor':1, 'depth':28, 'dropout_rate':0.3, 'num_classes':100}
+resnet28x2_options = {'widen_factor':2, 'depth':28, 'dropout_rate':0.3, 'num_classes':100}
+resnet28x4_options = {'widen_factor':4, 'depth':28, 'dropout_rate':0.3, 'num_classes':100}
+resnet28x8_options = {'widen_factor':8, 'depth':28, 'dropout_rate':0.3, 'num_classes':100}
+resnet28x16_options = {'widen_factor':16, 'depth':28, 'dropout_rate':0.3, 'num_classes':100}
+
+resnet40x1_options = {'widen_factor':1, 'depth':40, 'dropout_rate':0.3, 'num_classes':100}
+resnet40x2_options = {'widen_factor':2, 'depth':40, 'dropout_rate':0.3, 'num_classes':100}
+resnet40x4_options = {'widen_factor':4, 'depth':40, 'dropout_rate':0.3, 'num_classes':100}
+resnet40x8_options = {'widen_factor':8, 'depth':40, 'dropout_rate':0.3, 'num_classes':100}
+resnet40x16_options = {'widen_factor':16, 'depth':40, 'dropout_rate':0.3, 'num_classes':100}
+
+
+resnet82x1_options = {'widen_factor':1, 'depth':82, 'dropout_rate':0.3, 'num_classes':100}
+resnet82x2_options = {'widen_factor':2, 'depth':82, 'dropout_rate':0.3, 'num_classes':100}
+resnet82x4_options = {'widen_factor':4, 'depth':82, 'dropout_rate':0.3, 'num_classes':100}
+resnet82x8_options = {'widen_factor':8, 'depth':82, 'dropout_rate':0.3, 'num_classes':100}
+resnet82x16_options = {'widen_factor':16, 'depth':82, 'dropout_rate':0.3, 'num_classes':100}
+
+
+resnet160x1_options = {'widen_factor':1, 'depth':160, 'dropout_rate':0.3, 'num_classes':100}
+resnet160x2_options = {'widen_factor':2, 'depth':160, 'dropout_rate':0.3, 'num_classes':100}
+resnet160x4_options = {'widen_factor':4, 'depth':160, 'dropout_rate':0.3, 'num_classes':100}
+resnet160x8_options = {'widen_factor':8, 'depth':160, 'dropout_rate':0.3, 'num_classes':100}
+resnet160x16_options = {'widen_factor':16, 'depth':160, 'dropout_rate':0.3, 'num_classes':100}
+
+
+
+teacher_options = {'widen_factor':3, 'depth':46, 'dropout_rate':0.3, 'num_classes':100}
+student_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 
 baseline_options = {'widen_factor':1, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
 baseline_dense_options = {'widen_factor':2, 'depth':22, 'dropout_rate':0.3, 'num_classes':100}
@@ -110,4 +165,146 @@ def baseline_2x_wideresnet():
 
 def student_wideresnet():
     model = Wide_ResNet(**student_options)
+    return model
+
+
+def resnet10x1():
+    model = Wide_ResNet(**resnet10x1_options)
+    return model
+
+def resnet10x2():
+    model = Wide_ResNet(**resnet10x2_options)
+    return model
+
+def resnet10x4():
+    model = Wide_ResNet(**resnet10x4_options)
+    return model
+
+def resnet10x8():
+    model = Wide_ResNet(**resnet10x8_options)
+    return model
+
+def resnet10x16():
+    model = Wide_ResNet(**resnet10x16_options)
+    return model
+
+def resnet16x1():
+    model = Wide_ResNet(**resnet16x1_options)
+    return model
+
+def resnet16x2():
+    model = Wide_ResNet(**resnet16x2_options)
+    return model
+
+def resnet16x4():
+    model = Wide_ResNet(**resnet16x4_options)
+    return model
+
+def resnet16x8():
+    model = Wide_ResNet(**resnet16x8_options)
+    return model
+
+def resnet16x16():
+    model = Wide_ResNet(**resnet16x16_options)
+    return model
+
+def resnet22x1():
+    model = Wide_ResNet(**resnet22x1_options)
+    return model
+
+def resnet22x2():
+    model = Wide_ResNet(**resnet22x2_options)
+    return model
+
+def resnet22x4():
+    model = Wide_ResNet(**resnet22x4_options)
+    return model
+
+def resnet22x8():
+    model = Wide_ResNet(**resnet22x8_options)
+    return model
+
+def resnet22x16():
+    model = Wide_ResNet(**resnet22x16_options)
+    return model
+
+def resnet28x1():
+    model = Wide_ResNet(**resnet28x1_options)
+    return model
+
+def resnet28x2():
+    model = Wide_ResNet(**resnet28x2_options)
+    return model
+
+def resnet28x4():
+    model = Wide_ResNet(**resnet28x4_options)
+    return model
+
+def resnet28x8():
+    model = Wide_ResNet(**resnet28x8_options)
+    return model
+
+def resnet28x16():
+    model = Wide_ResNet(**resnet28x16_options)
+    return model
+
+def resnet40x1():
+    model = Wide_ResNet(**resnet40x1_options)
+    return model
+
+def resnet40x2():
+    model = Wide_ResNet(**resnet40x2_options)
+    return model
+
+def resnet40x4():
+    model = Wide_ResNet(**resnet40x4_options)
+    return model
+
+def resnet40x8():
+    model = Wide_ResNet(**resnet40x8_options)
+    return model
+
+def resnet40x16():
+    model = Wide_ResNet(**resnet40x16_options)
+    return model
+
+def resnet82x1():
+    model = Wide_ResNet(**resnet82x1_options)
+    return model
+
+def resnet82x2():
+    model = Wide_ResNet(**resnet82x2_options)
+    return model
+
+def resnet82x4():
+    model = Wide_ResNet(**resnet82x4_options)
+    return model
+
+def resnet82x8():
+    model = Wide_ResNet(**resnet82x8_options)
+    return model
+
+def resnet82x16():
+    model = Wide_ResNet(**resnet82x16_options)
+    return model
+    
+    
+def resnet160x1():
+    model = Wide_ResNet(**resnet160x1_options)
+    return model
+
+def resnet160x2():
+    model = Wide_ResNet(**resnet160x2_options)
+    return model
+
+def resnet160x4():
+    model = Wide_ResNet(**resnet160x4_options)
+    return model
+
+def resnet160x8():
+    model = Wide_ResNet(**resnet160x8_options)
+    return model
+
+def resnet160x16():
+    model = Wide_ResNet(**resnet160x16_options)
     return model

@@ -10,23 +10,23 @@
 
 #train original student
 
-#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_resnet_22_cifar_100_baseline"
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_resnet_22_cifar_100_baseline"
 
 #train original teacher
 
-#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="student_resnet_22_cifar_100_baseline"
+CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch teacher_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.3 --epochs=200 -j=1 --compress=../agp-pruning/wideresnet22.schedule_98.yaml --name="teacher_resnet_44_cifar_100_baseline"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=300 --compress=../agp-pruning/wideresnet22.schedule_90.yaml -j=1 --deterministic --name="baseline_experiment"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=300 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch student_wideresnet --teacher_weights ../../checkpoints/student_wideresnet_cifar_100.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning_selfdistilled"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet10x1 ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=./wideresnet_schedule.yaml -j=1 --deterministic --name="resnet10x1"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch student_wideresnet --teacher_weights ../../checkpoints/student_wideresnet_cifar_100.pth.tar --distillation_weight 0.9 ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning_selfdistilled_weight_0.9"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet10x2 ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=./wideresnet_schedule.yaml -j=2 --deterministic --name="resnet10x2"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch teacher_wideresnet --teacher_weights ../../checkpoints/teacher_wideresnet_cifar_100.pth.tar ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning_teacherdistilled"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet10x4 ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=./wideresnet_schedule.yaml -j=2 --deterministic --name="resnet10x4"
 
-CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch student_wideresnet --teacher_arch teacher_wideresnet --teacher_weights ../../checkpoints/teacher_wideresnet_cifar_100.pth.tar --start_distillation_from_epoch 20 ../../data.cifar100 --dataset=cifar100 -p=50 --lr=0.03 --epochs=100 -j=1 --compress=../agp-pruning/wideresnet22.pretrained.schedule_98.yaml --name="student_resnet_22_cifar_100_98percent_pruning_teacherdistilled_start20"
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet10x8 ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=./wideresnet_schedule.yaml -j=2 --deterministic --name="resnet10x8"
+
+#CUDA_VISIBLE_DEVICES=0 python3.6 compress_classifier.py --arch resnet10x8 ../../data.cifar100 --dataset cifar100 -p=50 --lr=0.3 --epochs=180 --compress=./wideresnet_schedule.yaml -j=2 --deterministic --name="resnet10x16"
 
 
 

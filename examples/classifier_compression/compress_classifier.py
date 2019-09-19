@@ -141,6 +141,10 @@ parser.add_argument('--summary', type=str, choices=SUMMARY_CHOICES,
                     ' | '.join(SUMMARY_CHOICES))
 parser.add_argument('--compress', dest='compress', type=str, nargs='?', action='store',
                     help='configuration file for pruning the model (default is to use hard-coded schedule)')
+
+parser.add_argument('--kd_type', dest='kd_type', type=str, default=0, nargs='?', action='store',
+                    help='type of distillation weight (default = 0, lognorm = 1, entropy = 2)')
+
 parser.add_argument('--sense', dest='sensitivity', choices=['element', 'filter'],
                     help='test the sensitivity of layers to pruning')
 parser.add_argument('--extras', default=None, type=str,
@@ -390,7 +394,7 @@ def main():
         if epoch >= args.start_distillation_from_epoch:
             train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
                   loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
-                  teacher_model=teacher_model, temperature_distillation=args.temp_distillation,
+                  teacher_model=teacher_model, temperature_distillation=args.temp_distillation, kd_type = args.kd_type,
                   weight_distillation_loss=args.weight_distillation_loss)
         else:
             train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
@@ -439,7 +443,7 @@ def main():
 
 
 def train(train_loader, model, criterion, optimizer, epoch,
-          compression_scheduler, loggers, print_freq, log_params_hist, teacher_model=None,
+          compression_scheduler, loggers, print_freq, log_params_hist, teacher_model=None, kd_type=0,
           temperature_distillation=2, weight_distillation_loss=0.7):
     """Training loop for one epoch. If teacher_model is not None, distillation will be used"""
     losses = {'objective_loss':   tnt.AverageValueMeter(),
@@ -452,6 +456,18 @@ def train(train_loader, model, criterion, optimizer, epoch,
         softmax_function = nn.Softmax(dim=1).cuda()
         log_softmax_function = nn.LogSoftmax(dim=1).cuda()
         kldiv_loss = nn.KLDivLoss(size_average=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
+
+        def get_entropy(probs, logprobs):
+            return torch.sum(-1.0 * probs * logprobs, dim=1)
+
+
+        #criterion_distill = nn.KLDivLoss(reduction='none')
+        #criterion_distill.to(device)
+        device = 'cuda'
+        #softmax_func = nn.Softmax(dim=-1).to(device)
+        #logsoftmax_func = nn.LogSoftmax(dim=-1).to(device)
+
+
 
     classerr = tnt.ClassErrorMeter(accuracy=True, topk=(1, 5))
     batch_time = tnt.AverageValueMeter()
@@ -483,6 +499,18 @@ def train(train_loader, model, criterion, optimizer, epoch,
             with PytorchNoGrad():
                 input_var_teacher = get_inference_var(inputs)
                 output_teacher = teacher_model(input_var_teacher)
+
+            teacher_probs = softmax_function(output_teacher)
+            teacher_logprobs = log_softmax_function(output_teacher)
+            teacher_entropy = get_entropy(teacher_probs, teacher_logprobs)
+
+
+            if kd_type == 1:
+                weight_distillation_loss = - teacher_entropy / np.log(2) + 1
+            if kd_type == 2:
+                weight_distillation_loss = lmbda_weight = 1 - softmax_func(teacher_entropy)
+
+
             loss_distilled = (temperature_distillation**2) * kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
                 softmax_function(output_teacher / temperature_distillation)) / output.size(0)
