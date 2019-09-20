@@ -67,6 +67,7 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
 import torchnet.meter as tnt
+
 try:
     import distiller
 except ImportError:
@@ -96,13 +97,13 @@ parser.add_argument('--dataset', help='cifar10 - cifar100 - imagenet', default='
 parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     choices=ALL_MODEL_NAMES,
                     help='model architecture: ' +
-                    ' | '.join(ALL_MODEL_NAMES) +
-                    ' (default: resnet18)')
+                         ' | '.join(ALL_MODEL_NAMES) +
+                         ' (default: resnet18)')
 parser.add_argument('--teacher_arch', '-ta', metavar='TEACHER_ARCH', default='None',
                     choices=ALL_MODEL_NAMES,
                     help='model architecture: ' +
-                    ' | '.join(ALL_MODEL_NAMES) +
-                    ' (default: None)')
+                         ' | '.join(ALL_MODEL_NAMES) +
+                         ' (default: None)')
 parser.add_argument('--teacher_weights', '-twp', metavar='TEACHER_WEIGHTS_PATH', default='None', type=str,
                     help='Path to teacher weights to load')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
@@ -138,7 +139,7 @@ parser.add_argument('--param-hist', dest='log_params_histograms', action='store_
 SUMMARY_CHOICES = ['sparsity', 'compute', 'model', 'modules', 'png', 'png_w_params']
 parser.add_argument('--summary', type=str, choices=SUMMARY_CHOICES,
                     help='print a summary of the model, and exit - options: ' +
-                    ' | '.join(SUMMARY_CHOICES))
+                         ' | '.join(SUMMARY_CHOICES))
 parser.add_argument('--compress', dest='compress', type=str, nargs='?', action='store',
                     help='configuration file for pruning the model (default is to use hard-coded schedule)')
 
@@ -175,7 +176,6 @@ def check_pytorch_version():
 
 
 def convert_state_dict_to_data_parallel(state_dict):
-
     '''
     Converts a state dict that was saved without data parallel to one tha can be loaded
     by a data parallel module
@@ -186,8 +186,8 @@ def convert_state_dict_to_data_parallel(state_dict):
         new_state_dict[name] = v
     return new_state_dict
 
-def convert_state_dict_from_data_parallel(state_dict):
 
+def convert_state_dict_from_data_parallel(state_dict):
     '''
     Converts a state dict that was saved with data parallel to one tha can be loaded
     by a non-data parallel module
@@ -201,7 +201,6 @@ def convert_state_dict_from_data_parallel(state_dict):
             raise ValueError('The state_dict passed was not saved by a data parallel instance')
         new_state_dict[name] = v
     return new_state_dict
-
 
 
 def main():
@@ -262,7 +261,7 @@ def main():
     is_parallel = not png_summary and args.summary != 'compute'  # For PNG summary, parallel graphs are illegible
     model = create_model(args.pretrained, args.dataset, args.arch, parallel=is_parallel, device_ids=args.gpus)
 
-    #If the teacher is not None, create teacher model and load it
+    # If the teacher is not None, create teacher model and load it
     if args.teacher_arch.lower() != 'none':
         try:
             teacher_model = create_model(True, args.dataset, args.teacher_arch, parallel=is_parallel,
@@ -278,23 +277,23 @@ def main():
             try:
                 teacher_weights = torch.load(args.teacher_weights)
                 if 'state_dict' in teacher_weights:
-                    teacher_weights = teacher_weights['state_dict']                      
+                    teacher_weights = teacher_weights['state_dict']
                 teacher_model.load_state_dict(teacher_weights)
-                
+
             except:
                 if isinstance(teacher_model, torch.nn.parallel.DataParallel):
                     teacher_weights = convert_state_dict_to_data_parallel(teacher_weights)
                 else:
-                    teacher_weights = convert_state_dict_from_data_parallel(teacher_weights)  
-                
+                    teacher_weights = convert_state_dict_from_data_parallel(teacher_weights)
+
                 try:
                     teacher_model.load_state_dict(teacher_weights)
                 except:
-                    raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(args.teacher_weights))
+                    raise ValueError('Unable to load teacher weights. Loading path {} resulted in error'.format(
+                        args.teacher_weights))
 
     else:
         teacher_model = None
-
 
     compression_scheduler = None
     # Create a couple of logging backends.  TensorBoardLogger writes log files in a format
@@ -309,6 +308,8 @@ def main():
 
     # Define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
+    criterion_ = nn.CrossEntropyLoss(reduce=False).cuda()
+    criterions = [criterion, criterion_, criterion_]
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
@@ -353,7 +354,9 @@ def main():
         which_params = [param_name for param_name, _ in model.named_parameters()]
         sensitivity = distiller.perform_sensitivity_analysis(model,
                                                              net_params=which_params,
-                                                             sparsities=np.arange(0.0, 0.50, 0.05) if args.sensitivity == 'filter' else np.arange(0.0, 0.95, 0.05),
+                                                             sparsities=np.arange(0.0, 0.50,
+                                                                                  0.05) if args.sensitivity == 'filter' else np.arange(
+                                                                 0.0, 0.95, 0.05),
                                                              test_func=test_fnc,
                                                              group=args.sensitivity)
         distiller.sensitivities_to_png(sensitivity, 'sensitivity.png')
@@ -392,12 +395,12 @@ def main():
 
         # Train for one epoch
         if epoch >= args.start_distillation_from_epoch:
-            train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
+            train(train_loader, model, criterions[int(args.kd_type)], optimizer, epoch, compression_scheduler,
                   loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
-                  teacher_model=teacher_model, temperature_distillation=args.temp_distillation, kd_type = args.kd_type,
+                  teacher_model=teacher_model, temperature_distillation=args.temp_distillation, kd_type=args.kd_type,
                   weight_distillation_loss=args.weight_distillation_loss)
         else:
-            train(train_loader, model, criterion, optimizer, epoch, compression_scheduler,
+            train(train_loader, model, criterions[int(args.kd_type)], optimizer, epoch, compression_scheduler,
                   loggers=[tflogger, pylogger], print_freq=args.print_freq, log_params_hist=args.log_params_histograms,
                   teacher_model=None)
 
@@ -415,7 +418,6 @@ def main():
         distiller.log_training_progress(stats, None, epoch, steps_completed=0, total_steps=1,
                                         log_freq=1, loggers=[tflogger])
 
-		
         # remember best top1 and save checkpoint
         is_best = top1 > best_top1
         if is_best:
@@ -433,10 +435,8 @@ def main():
         distiller.log_training_progress(stats, None, epoch, steps_completed=0, total_steps=1,
                                         log_freq=1, loggers=[tflogger])
 
-
         if compression_scheduler:
             compression_scheduler.on_epoch_end(epoch, optimizer)
-
 
     # Finally run results on the test set
     test(test_loader, model, criterion, [pylogger], args.print_freq)
@@ -446,7 +446,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
           compression_scheduler, loggers, print_freq, log_params_hist, teacher_model=None, kd_type=0,
           temperature_distillation=2, weight_distillation_loss=0.7):
     """Training loop for one epoch. If teacher_model is not None, distillation will be used"""
-    losses = {'objective_loss':   tnt.AverageValueMeter(),
+    losses = {'objective_loss': tnt.AverageValueMeter(),
               'regularizer_loss': tnt.AverageValueMeter()}
     if compression_scheduler is None:
         # Initialize the regularizer loss to zero
@@ -455,19 +455,16 @@ def train(train_loader, model, criterion, optimizer, epoch,
     if teacher_model is not None:
         softmax_function = nn.Softmax(dim=1).cuda()
         log_softmax_function = nn.LogSoftmax(dim=1).cuda()
-        kldiv_loss = nn.KLDivLoss(size_average=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
+        kldiv_loss = nn.KLDivLoss(reduce=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
 
         def get_entropy(probs, logprobs):
             return torch.sum(-1.0 * probs * logprobs, dim=1)
 
-
-        #criterion_distill = nn.KLDivLoss(reduction='none')
-        #criterion_distill.to(device)
+        # criterion_distill = nn.KLDivLoss(reduction='none')
+        # criterion_distill.to(device)
         device = 'cuda'
-        #softmax_func = nn.Softmax(dim=-1).to(device)
-        #logsoftmax_func = nn.LogSoftmax(dim=-1).to(device)
-
-
+        # softmax_func = nn.Softmax(dim=-1).to(device)
+        # logsoftmax_func = nn.LogSoftmax(dim=-1).to(device)
 
     classerr = tnt.ClassErrorMeter(accuracy=True, topk=(1, 5))
     batch_time = tnt.AverageValueMeter()
@@ -504,17 +501,27 @@ def train(train_loader, model, criterion, optimizer, epoch,
             teacher_logprobs = log_softmax_function(output_teacher)
             teacher_entropy = get_entropy(teacher_probs, teacher_logprobs)
 
-
             if kd_type == 1:
                 weight_distillation_loss = - teacher_entropy / np.log(2) + 1
             if kd_type == 2:
-                weight_distillation_loss = lmbda_weight = 1 - softmax_func(teacher_entropy)
+                weight_distillation_loss = 1 - softmax_func(teacher_entropy)
 
-
-            loss_distilled = (temperature_distillation**2) * kldiv_loss(
+            loss_distilled = (temperature_distillation ** 2) * kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
-                softmax_function(output_teacher / temperature_distillation)) / output.size(0)
-            loss = weight_distillation_loss*loss_distilled + (1-weight_distillation_loss)*loss
+                softmax_function(output_teacher / temperature_distillation))
+
+            if kd_type == 0:
+                loss_distilled = loss_distilled.sum() / output.size(0)
+            else:
+                loss_distilled = loss_distilled.sum(dim=1)
+
+            # loss_distilled = (temperature_distillation**2) * kldiv_loss(
+            #     log_softmax_function(output / temperature_distillation),
+            #     softmax_function(output_teacher / temperature_distillation)) / output.size(0)
+            loss = weight_distillation_loss * loss_distilled + (1 - weight_distillation_loss) * loss
+
+            if kd_type != 0:
+                loss = loss.mean()
 
         # Measure accuracy and record loss
         classerr.add(output.data, target)
@@ -522,7 +529,8 @@ def train(train_loader, model, criterion, optimizer, epoch,
 
         if compression_scheduler:
             # Before running the backward phase, we add any regularization loss computed by the scheduler
-            regularizer_loss = compression_scheduler.before_backward_pass(epoch, train_step, steps_per_epoch, loss, optimizer)
+            regularizer_loss = compression_scheduler.before_backward_pass(epoch, train_step, steps_per_epoch, loss,
+                                                                          optimizer)
             loss += regularizer_loss
             losses['regularizer_loss'].add(regularizer_loss.item())
 
@@ -535,7 +543,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
 
         # measure elapsed time
         batch_time.add(time.time() - end)
-        steps_completed = (train_step+1)
+        steps_completed = (train_step + 1)
 
         if steps_completed % print_freq == 0:
             # Log some statistics
@@ -604,7 +612,7 @@ def _validate(data_loader, model, criterion, loggers, print_freq, epoch=-1):
             batch_time.add(time.time() - end)
             end = time.time()
 
-            steps_completed = (validation_step+1)
+            steps_completed = (validation_step + 1)
             if steps_completed % print_freq == 0:
                 stats = ('',
                          OrderedDict([('Loss', losses['objective_loss'].mean),
@@ -620,6 +628,7 @@ def _validate(data_loader, model, criterion, loggers, print_freq, epoch=-1):
 
 class PytorchNoGrad(object):
     """This is a temporary class to bridge some difference between PyTorch 3.x and 4.x"""
+
     def __init__(self):
         self.no_grad = None
         if torch.__version__ >= '0.4':
