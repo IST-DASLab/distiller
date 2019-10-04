@@ -122,7 +122,7 @@ parser.add_argument('--weight_distillation_loss', default=0.7, type=float, metav
                     help='weight for distillation loss')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
-parser.add_argument('--start_distillation_from_epoch', '-sdfe', default=1, type=int,
+parser.add_argument('--start_distillation_from_epoch', '-sdfe', default=0, type=int,
                     help='Epoch at which we start training with distillation')
 parser.add_argument('--print-freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
@@ -143,7 +143,7 @@ parser.add_argument('--summary', type=str, choices=SUMMARY_CHOICES,
 parser.add_argument('--compress', dest='compress', type=str, nargs='?', action='store',
                     help='configuration file for pruning the model (default is to use hard-coded schedule)')
 
-parser.add_argument('--kd_type', dest='kd_type', type=str, default=0, nargs='?', action='store',
+parser.add_argument('--kd_type', dest='kd_type', type=int,  default=0, nargs='?', action='store',
                     help='type of distillation weight (default = 0, lognorm = 1, entropy = 2)')
 
 parser.add_argument('--sense', dest='sensitivity', choices=['element', 'filter'],
@@ -478,6 +478,8 @@ def train(train_loader, model, criterion, optimizer, epoch,
     # Switch to train mode
     model.train()
     end = time.time()
+    
+    print("KD TYPE: " + str(kd_type))
 
     for train_step, (inputs, target) in enumerate(train_loader):
         # Measure data loading time
@@ -492,6 +494,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
             compression_scheduler.on_minibatch_begin(epoch, train_step, steps_per_epoch, optimizer)
         output = model(input_var)
         loss = criterion(output, target_var)
+        print(teacher_model)
         if teacher_model is not None:
             with PytorchNoGrad():
                 input_var_teacher = get_inference_var(inputs)
@@ -504,7 +507,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
             if kd_type == 1:
                 weight_distillation_loss = - teacher_entropy / np.log(2) + 1
             if kd_type == 2:
-                weight_distillation_loss = 1 - softmax_func(teacher_entropy)
+                weight_distillation_loss = 1 - softmax_function(teacher_entropy)
 
             loss_distilled = (temperature_distillation ** 2) * kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
@@ -514,6 +517,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
                 loss_distilled = loss_distilled.sum() / output.size(0)
             else:
                 loss_distilled = loss_distilled.sum(dim=1)
+            print("loss distilled" + str(loss_distilled))
 
             # loss_distilled = (temperature_distillation**2) * kldiv_loss(
             #     log_softmax_function(output / temperature_distillation),

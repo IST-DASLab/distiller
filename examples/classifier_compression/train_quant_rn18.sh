@@ -26,18 +26,18 @@ WD=0.0
 #	--kd-start-epoch=0 \
 	
 	
-CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
-	--name="RN18_QBASE"\
-	--arch=$ARCH $DATAPATH \
-	--epochs=10 -p=30 -b=256 -j=8 \
-	--lr=$LR --momentum=$MOM --wd=$WD \
-	--pretrained \
-	--vs=0 \
-	--out-dir=$CHECKPOINT_ROOT	\
-	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml
+# CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
+# 	--name="RN18_QBASE"\
+# 	--arch=$ARCH $DATAPATH \
+# 	--epochs=10 -p=30 -b=256 -j=8 \
+# 	--lr=$LR --momentum=$MOM --wd=$WD \
+# 	--pretrained \
+# 	--vs=0 \
+# 	--out-dir=$CHECKPOINT_ROOT	\
+# 	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
+CUDA_VISIBLE_DEVICES=0 python compress_classifier.py \
 	--name="RN18_QKD_2"\
 	--arch=$ARCH $DATAPATH \
 	--epochs=10 -p=30 -b=256 -j=8 \
@@ -46,27 +46,27 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
 	--vs=0 \
 	--out-dir=$CHECKPOINT_ROOT	\
 	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml \
-    --kd_type 2 --weight_distillation_loss=0.7 --teacher_arch resnet34 --temp_distillation 5
+    --kd_type=2 --weight_distillation_loss=0.7 --teacher_arch resnet34 --temp_distillation 5
 
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
-	--name="RN18_QKD_BASE"\
-	--arch=$ARCH $DATAPATH \
-	--epochs=10 -p=30 -b=256 -j=8 \
+ 	--name="RN18_QKD_BASE"\
+ 	--arch=$ARCH $DATAPATH \
+ 	--epochs=10 -p=30 -b=256 -j=8 \
 	--lr=$LR --momentum=$MOM --wd=$WD \
-	--pretrained \
-	--vs=0 \
-	--out-dir=$CHECKPOINT_ROOT	\
-	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml \
+ 	--pretrained \
+ 	--vs=0 \
+ 	--out-dir=$CHECKPOINT_ROOT	\
+ 	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml \
     --kd_type 0 --weight_distillation_loss=0.7 --teacher_arch resnet34 --temp_distillation 5
-
+ 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python compress_classifier.py \
-	--name="RN18_QKD_1"\
-	--arch=$ARCH $DATAPATH \
-	--epochs=10 -p=30 -b=256 -j=8 \
-	--lr=$LR --momentum=$MOM --wd=$WD \
-	--pretrained \
-	--vs=0 \
-	--out-dir=$CHECKPOINT_ROOT	\
-	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml \
+ 	--name="RN18_QKD_1"\
+ 	--arch=$ARCH $DATAPATH \
+ 	--epochs=10 -p=30 -b=256 -j=8 \
+ 	--lr=$LR --momentum=$MOM --wd=$WD \
+ 	--pretrained \
+ 	--vs=0 \
+ 	--out-dir=$CHECKPOINT_ROOT	\
+ 	--compress=../quantization/preact_resnet18_imagenet_dorefa.yaml \
     --kd_type 1 --weight_distillation_loss=0.7 --teacher_arch resnet34 --temp_distillation 5
