@@ -453,8 +453,8 @@ def train(train_loader, model, criterion, optimizer, epoch,
         losses['regularizer_loss'].add(0)
 
     if teacher_model is not None:
-        softmax_function = nn.Softmax(dim=1).cuda()
-        log_softmax_function = nn.LogSoftmax(dim=1).cuda()
+        softmax_function = nn.Softmax(dim=0).cuda()
+        log_softmax_function = nn.LogSoftmax(dim=0).cuda()
         kldiv_loss = nn.KLDivLoss(reduce=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
 
         def get_entropy(probs, logprobs):
@@ -494,7 +494,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
             compression_scheduler.on_minibatch_begin(epoch, train_step, steps_per_epoch, optimizer)
         output = model(input_var)
         loss = criterion(output, target_var)
-        print(teacher_model)
+        #print(teacher_model)
         if teacher_model is not None:
             with PytorchNoGrad():
                 input_var_teacher = get_inference_var(inputs)
@@ -507,7 +507,9 @@ def train(train_loader, model, criterion, optimizer, epoch,
             if kd_type == 1:
                 weight_distillation_loss = - teacher_entropy / np.log(2) + 1
             if kd_type == 2:
+                #print(teacher_entropy)
                 weight_distillation_loss = 1 - softmax_function(teacher_entropy)
+
 
             loss_distilled = (temperature_distillation ** 2) * kldiv_loss(
                 log_softmax_function(output / temperature_distillation),
@@ -517,7 +519,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
                 loss_distilled = loss_distilled.sum() / output.size(0)
             else:
                 loss_distilled = loss_distilled.sum(dim=1)
-            print("loss distilled" + str(loss_distilled))
+            #print("loss distilled" + str(loss_distilled))
 
             # loss_distilled = (temperature_distillation**2) * kldiv_loss(
             #     log_softmax_function(output / temperature_distillation),
