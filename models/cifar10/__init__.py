@@ -20,5 +20,5 @@ from .simplenet_cifar import *
 from .resnet_cifar import *
 from .preresnet_cifar import *
 from .custom_CNN_cifar import *
-from .vgg_cifar import *
-from .basicnet_cifar import *
+#from .vgg_cifar import *
+#from .basicnet_cifar import *

@@ -19,5 +19,5 @@
 from .mobilenet import *
 from .preresnet_imagenet import *
 from .alexnet_batchnorm import *
-from .vgg512 import *
+#from .vgg512 import *
 
