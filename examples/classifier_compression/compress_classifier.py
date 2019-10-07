@@ -505,7 +505,7 @@ def train(train_loader, model, criterion, optimizer, epoch,
             teacher_entropy = get_entropy(teacher_probs, teacher_logprobs)
 
             if kd_type == 1:
-                weight_distillation_loss = - teacher_entropy / np.log(2) + 1
+                weight_distillation_loss = - teacher_entropy / np.log(k) + 1
             if kd_type == 2:
                 #print(teacher_entropy)
                 weight_distillation_loss = 1 - softmax_function(teacher_entropy)
