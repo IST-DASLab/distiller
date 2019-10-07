@@ -453,8 +453,8 @@ def train(train_loader, model, criterion, optimizer, epoch,
         losses['regularizer_loss'].add(0)
 
     if teacher_model is not None:
-        softmax_function = nn.Softmax(dim=0).cuda()
-        log_softmax_function = nn.LogSoftmax(dim=0).cuda()
+        softmax_function = nn.Softmax(dim=1).cuda()
+        log_softmax_function = nn.LogSoftmax(dim=1).cuda()
         kldiv_loss = nn.KLDivLoss(reduce=False).cuda()  # see https://github.com/pytorch/pytorch/issues/6622
 
         def get_entropy(probs, logprobs):
